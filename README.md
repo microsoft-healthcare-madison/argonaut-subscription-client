@@ -10,6 +10,10 @@ for notifications, and hosts a UI for user interactions (requests, notifications
 
 - Coming Soon
 
+# Notes
+- [Cross-Site Websocket Hijacking](http://www.christian-schneider.net/CrossSiteWebSocketHijacking.html) (CSWSH) is not prevented in this example.
+- Authentication is not implemented between the client and the client-host (under consideration).
+
 ## To Do:
 
 
@@ -22,7 +26,7 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
 provided by the bot. You will only need to do this once across all repos using our CLA.
 
-There are many other ways to contribute to FHIR Server for Azure.
+There are many other ways to contribute:
 * [Submit bugs](https://github.com/microsoft-healthcare-madison/argonaut-subscription-client/issues) and help us verify fixes as they are checked in.
 * Review the [source code changes](https://github.com/microsoft-healthcare-madison/argonaut-subscription-client/pulls).
 * Engage with users and developers on [Official FHIR Zulip](https://chat.fhir.org/)
