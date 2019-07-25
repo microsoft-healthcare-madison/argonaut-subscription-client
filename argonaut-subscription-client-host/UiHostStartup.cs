@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using argonaut_subscription_client_host.Handlers;
+using System.Reflection;
 
 namespace argonaut_subscription_client_host
 {
@@ -27,6 +28,10 @@ namespace argonaut_subscription_client_host
             // **** add MVC to our services ****
 
             services.AddMvc();
+
+            // **** because we are loading the web host manually, we need to force it to load our local assemblies ****
+
+            services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
 
             // **** inject the configuration singleton into our services ****
 
@@ -55,7 +60,7 @@ namespace argonaut_subscription_client_host
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .AllowCredentials()
+                //.AllowCredentials()
                 );
 
             // **** grab the configured source path for the UI ****
@@ -85,7 +90,7 @@ namespace argonaut_subscription_client_host
             // **** flag we want MVC (for API routing, Controllers are decorated with routes) ****
 
             app.UseMvc();
-
+          
             // **** enable custom middleware to handle websocket requests ****
 
             app.UseMiddleware<ClientWebSocketHandler>("/websockets");

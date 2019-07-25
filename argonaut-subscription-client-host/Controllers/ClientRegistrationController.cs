@@ -118,7 +118,7 @@ namespace argonaut_subscription_client_host.Controllers
 
             // **** add to our manager ****
 
-            ClientManager.AddOrUpdate(client);
+            ClientManager.AddOrUpdate((Guid)client.Uid, client.FhirServerUrl);
 
             // **** return our data (so the client has the UID) ****
 

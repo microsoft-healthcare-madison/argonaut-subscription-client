@@ -6,11 +6,11 @@ This system creates channel endpoints, generates subscription requests, listens
 for notifications, and hosts a UI for user interactions (requests, notifications, etc.).
 
 
-# Usage
+## Usage
 
 - Coming Soon
 
-# Notes
+## Notes
 - [Cross-Site Websocket Hijacking](http://www.christian-schneider.net/CrossSiteWebSocketHijacking.html) (CSWSH) is not prevented in this example.
 - Authentication is not implemented between the client and the client-host (under consideration).
 

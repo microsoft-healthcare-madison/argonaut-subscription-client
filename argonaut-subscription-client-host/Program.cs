@@ -68,6 +68,7 @@ namespace argonaut_subscription_client_host
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseUrls(Configuration["Client_Listen_Url"])
+                .UseKestrel()
                 .UseStartup<UiHostStartup>()
                 ;
     }

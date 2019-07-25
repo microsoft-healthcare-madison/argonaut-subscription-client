@@ -130,6 +130,44 @@ namespace argonaut_subscription_client_host.Handlers
         #region Internal Functions . . .
 
         ///-------------------------------------------------------------------------------------------------
+        /// <summary>Tests queueing messages.</summary>
+        ///
+        /// <remarks>Gino Canessa, 7/25/2019.</remarks>
+        ///
+        /// <param name="clientGuid">Unique identifier for the client.</param>
+        ///
+        /// <returns>An asynchronous result.</returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        private void TestQueueingMessages(Guid clientGuid)
+        {
+            bool done = false;
+            long messageNumber = 0;
+
+            while (!done)
+            {
+                // **** check for no client ****
+
+                if (!ClientManager.TryGetClient(clientGuid, out ClientInformation client))
+                {
+                    // **** done ****
+
+                    done = true;
+                    continue;
+                }
+
+                // **** queue a message for this client ****
+
+                client.MessageQ.Enqueue($"Test message: {messageNumber++}, {DateTime.Now}");
+
+                // **** wait a couple of seconds ****
+
+                Thread.Sleep(2000);
+            }
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
         /// <summary>Accept and process a web socket connection.</summary>
         ///
         /// <remarks>Gino Canessa, 7/18/2019.</remarks>
@@ -151,6 +189,12 @@ namespace argonaut_subscription_client_host.Handlers
 
                 using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
                 {
+
+                    // TODO: Remove after testing
+                    // **** queue messages for this client ****
+
+                    _ = Task.Run((Action)(() => TestQueueingMessages(clientGuid)));
+
                     // **** create a cancellation token source so we can cancel our read/write tasks ****
 
                     CancellationTokenSource processCancelSource = new CancellationTokenSource();
@@ -163,10 +207,10 @@ namespace argonaut_subscription_client_host.Handlers
                         ).Token;
 
                     Task[] webSocketTasks = new Task[2];
-
+                    
                     // **** create send task ****
 
-                    webSocketTasks[0] = new Task(async () =>
+                    webSocketTasks[0] = Task.Run(async () =>
                     {
                         try
                         {
@@ -182,7 +226,7 @@ namespace argonaut_subscription_client_host.Handlers
 
                     // **** create receive task ****
 
-                    webSocketTasks[1] = new Task(async () =>
+                    webSocketTasks[1] =Task.Run(async () =>
                     {
                         try
                         {
@@ -195,6 +239,7 @@ namespace argonaut_subscription_client_host.Handlers
                             processCancelSource.Cancel();
                         }
                     });
+                    
 
                     // **** start tasks and wait for them to complete ****
 

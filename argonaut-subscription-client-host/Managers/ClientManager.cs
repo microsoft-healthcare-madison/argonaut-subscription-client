@@ -82,11 +82,11 @@ namespace argonaut_subscription_client_host.Managers
         /// <param name="client">The client.</param>
         ///-------------------------------------------------------------------------------------------------
 
-        public static void AddOrUpdate(ClientInformation client)
+        public static void AddOrUpdate(Guid clientUid, string fhirServerUrl)
         {
             // **** add or update the record ****
 
-            _instance._uidClientDict[client.Uid] = client;
+            _instance._uidClientDict[clientUid] = ClientInformation.Create(clientUid, fhirServerUrl);
         }
 
         ///-------------------------------------------------------------------------------------------------
