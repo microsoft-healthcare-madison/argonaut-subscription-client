@@ -189,11 +189,10 @@ namespace argonaut_subscription_client_host.Handlers
 
                 using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
                 {
+                    //// TODO: Remove after testing
+                    //// **** queue messages for this client ****
 
-                    // TODO: Remove after testing
-                    // **** queue messages for this client ****
-
-                    _ = Task.Run((Action)(() => TestQueueingMessages(clientGuid)));
+                    //_ = Task.Run((Action)(() => TestQueueingMessages(clientGuid)));
 
                     // **** create a cancellation token source so we can cancel our read/write tasks ****
 
@@ -333,6 +332,10 @@ namespace argonaut_subscription_client_host.Handlers
                 {
                     Console.WriteLine($"ClientWebSocketHandler.WriteClientMessages" +
                         $" <<< client: {clientGuid} caught exception: {ex.Message}");
+
+                    // **** this socket is borked, exit ****
+
+                    break;
                 }
             }
         }
@@ -409,6 +412,10 @@ namespace argonaut_subscription_client_host.Handlers
                 {
                     Console.WriteLine($"ClientWebSocketHandler.ReadClientMessages" +
                         $" <<< client: {clientGuid} caught exception: {ex.Message}");
+
+                    // **** this socket is borked, exit ****
+
+                    break;
                 }
             }
         }

@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace argonaut_subscription_client_host.Controllers
@@ -22,6 +25,22 @@ namespace argonaut_subscription_client_host.Controllers
     [Produces("application/json")]
     public class VersionController : Controller
     {
+        #region Class Constants . . .
+
+        private const string _configPrefix = "Client_";
+
+        #endregion Class Constants . . .
+
+        #region Private Classes . . .
+
+        private class RouteInfo {
+            public string FunctionName { get; set; }
+            public string ControllerName { get; set; }
+            public string UriTemplate { get; set; }
+        }
+
+        #endregion Private Classes . . 
+
         #region Class Variables . . .
 
         #endregion Class Variables . . .
@@ -90,12 +109,14 @@ namespace argonaut_subscription_client_host.Controllers
         {
             // **** create a basic tuple to return ****
 
-            List<KeyValuePair<string, string>> information = new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("Application", AppDomain.CurrentDomain.FriendlyName),
-                new KeyValuePair<string, string>("Version", System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()),
-                new KeyValuePair<string, string>("Runtime", Environment.Version.ToString()),
-            };
+            Dictionary<string, string> information = new Dictionary<string, string>();
+
+            information.Add("Application", AppDomain.CurrentDomain.FriendlyName);
+            information.Add("Runtime", Environment.Version.ToString());
+
+            // **** get the file version of the assembly that launched us ****
+
+            information.Add("Version", FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion.ToString());
 
             // **** add the list of configuration keys and values ****
 
@@ -103,34 +124,27 @@ namespace argonaut_subscription_client_host.Controllers
 
             foreach (IConfigurationSection configItem in configItems)
             {
-                information.Add(
-                    new KeyValuePair<string, string>(
-                        $"Config:{configItem.Key}",
-                        configItem.Value
-                        )
-                    );
+                if (configItem.Key.StartsWith(_configPrefix, StringComparison.Ordinal))
+                {
+                    information.Add(configItem.Key, configItem.Value);
+                }
             }
 
             // **** try to get a list of routes ****
 
             try
             {
-                List<(string Action, string Controller, string Name, string Template)> routes =
-                    _provider.ActionDescriptors.Items.Select(x => (
-                        Action: x.RouteValues["Action"],
-                        Controller: x.RouteValues["Controller"],
-                        Name: x.AttributeRouteInfo.Name,
-                        Template: x.AttributeRouteInfo.Template
-                    )).ToList();
+                List<RouteInfo> routes = _provider.ActionDescriptors.Items.Select(x => new RouteInfo()
+                        {
+                            FunctionName = x.RouteValues["Action"],
+                            ControllerName = x.RouteValues["Controller"],
+                            UriTemplate = x.AttributeRouteInfo.Template
+                        })
+                    .ToList();
 
                 // *** add to our return list ****
 
-                information.Add(
-                    new KeyValuePair<string, string>(
-                        "Routes",
-                        JsonConvert.SerializeObject(routes)
-                        )
-                    );
+                information.Add("Routes", JsonConvert.SerializeObject(routes));
             }
             catch (Exception ex)
             {

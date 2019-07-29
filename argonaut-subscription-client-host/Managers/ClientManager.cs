@@ -99,20 +99,22 @@ namespace argonaut_subscription_client_host.Managers
         /// <returns>True if it succeeds, false if it fails.</returns>
         ///-------------------------------------------------------------------------------------------------
 
-        public static bool Remove(Guid clientGuid)
+        public static bool Remove(Guid clientUid)
         {
             // **** check if this client exists ****
 
-            if (!_instance._uidClientDict.ContainsKey(clientGuid))
+            if (!_instance._uidClientDict.ContainsKey(clientUid))
             {
                 return false;
             }
 
-            // TODO(ginoc): handle cleaning up endpoints
+            // **** clean up endpoints ****
+
+            EndpointManager.RemoveClient(clientUid);
 
             // **** remove this client ****
 
-            _instance._uidClientDict.Remove(clientGuid);
+            _instance._uidClientDict.Remove(clientUid);
 
             // **** successfully removed ****
 

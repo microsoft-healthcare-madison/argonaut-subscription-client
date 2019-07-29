@@ -65,7 +65,7 @@ namespace argonaut_subscription_client_host
 
             // **** grab the configured source path for the UI ****
 
-            string uiSourcePath = Program.Configuration["UI_Source_Path"];
+            string uiSourcePath = Program.Configuration["Client_UI_Source_Path"];
 
             if (!Path.IsPathRooted(uiSourcePath))
             {
