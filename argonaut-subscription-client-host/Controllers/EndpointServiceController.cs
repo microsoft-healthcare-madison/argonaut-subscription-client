@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace argonaut_subscription_client_host.Controllers
@@ -156,7 +157,8 @@ namespace argonaut_subscription_client_host.Controllers
 
         [HttpPost]
         [Route("/Endpoints/{endpointUid:guid}/")]
-        public virtual IActionResult PostEventToEndpointByUid([FromRoute] Guid endpointUid, [FromBody] string content)
+        [Consumes("application/fhir+json")]
+        public virtual IActionResult PostEventToEndpointByUid([FromRoute] Guid endpointUid)
         {
             // **** check to see if this endpoint exists ****
 
@@ -175,9 +177,16 @@ namespace argonaut_subscription_client_host.Controllers
 
             Console.WriteLine($"Received message for Endpoint: {endpointUid}");
 
-            // **** pass this to the endpoint manager for processing ****
+            // **** read our content ****
 
-            EndpointManager.QueueMessage(endpointUid, content);
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                string content = reader.ReadToEnd();
+
+                // **** pass this to the endpoint manager for processing ****
+
+                EndpointManager.QueueMessage(endpointUid, content);
+            }
 
             // **** flag we accepted ****
 
@@ -198,7 +207,8 @@ namespace argonaut_subscription_client_host.Controllers
 
         [HttpPost]
         [Route("/Endpoints/{urlPart}/")]
-        public virtual IActionResult PostEventToEndpointByUrlPart([FromRoute] string urlPart, [FromBody] string content)
+        [Consumes("application/fhir+json")]
+        public virtual IActionResult PostEventToEndpointByUrlPart([FromRoute] string urlPart)
         {
             // **** check to see if this endpoint exists ****
 
@@ -217,9 +227,16 @@ namespace argonaut_subscription_client_host.Controllers
 
             Console.WriteLine($"Received message for Endpoint: {urlPart}");
 
-            // **** pass this to the endpoint manager for processing ****
+            // **** read our content ****
 
-            EndpointManager.QueueMessage(urlPart, content);
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                string content = reader.ReadToEnd();
+
+                // **** pass this to the endpoint manager for processing ****
+
+                EndpointManager.QueueMessage(urlPart, content);
+            }
 
             // **** flag we accepted ****
 
