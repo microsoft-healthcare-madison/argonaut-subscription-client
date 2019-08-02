@@ -30,8 +30,8 @@ namespace argonaut_subscription_client_host.Managers
         /// <summary>Dictionary of endpoints, by uid.</summary>
         private Dictionary<Guid, EndpointInformation> _uidEndpointDict;
 
-        /// <summary>Dictionary of URL part unique identifiers.</summary>
-        private Dictionary<string, Guid> _urlPartGuidDict;
+        /// <summary>Dictionary of endpoints, by URL part.</summary>
+        private Dictionary<string, EndpointInformation> _urlPartEndpointDict;
 
         /// <summary>Dictionary of clients per endpoint guid</summary>
         private Dictionary<Guid, HashSet<Guid>> _endpointClientsDict;
@@ -54,7 +54,7 @@ namespace argonaut_subscription_client_host.Managers
             // **** create our index objects ****
 
             _uidEndpointDict = new Dictionary<Guid, EndpointInformation>();
-            _urlPartGuidDict = new Dictionary<string, Guid>();
+            _urlPartEndpointDict = new Dictionary<string, EndpointInformation>();
             _endpointClientsDict = new Dictionary<Guid, HashSet<Guid>>();
             _clientEndpointsDict = new Dictionary<Guid, HashSet<Guid>>();
         }
@@ -149,7 +149,7 @@ namespace argonaut_subscription_client_host.Managers
         {
             // **** check for endpoint ****
 
-            if (!_instance._urlPartGuidDict.ContainsKey(urlPart))
+            if (!_instance._urlPartEndpointDict.ContainsKey(urlPart))
             {
                 endpoint = null;
                 return false;
@@ -157,7 +157,7 @@ namespace argonaut_subscription_client_host.Managers
 
             // **** set endpoint info ****
 
-            endpoint = _instance._uidEndpointDict[_instance._urlPartGuidDict[urlPart]];
+            endpoint = _instance._urlPartEndpointDict[urlPart];
             return true;
         }
 
@@ -182,7 +182,7 @@ namespace argonaut_subscription_client_host.Managers
 
             // **** check to see if we have this url part ****
 
-            return !_instance._urlPartGuidDict.ContainsKey(urlPart);
+            return !_instance._urlPartEndpointDict.ContainsKey(urlPart);
         }
 
         ///-------------------------------------------------------------------------------------------------
@@ -212,7 +212,7 @@ namespace argonaut_subscription_client_host.Managers
 
         public static bool Exists(string urlPart)
         {
-            return _instance._urlPartGuidDict.ContainsKey(urlPart);
+            return _instance._urlPartEndpointDict.ContainsKey(urlPart);
         }
 
         ///-------------------------------------------------------------------------------------------------
@@ -365,14 +365,14 @@ namespace argonaut_subscription_client_host.Managers
         {
             // **** check for not having this url part **** 
 
-            if (!_instance._urlPartGuidDict.ContainsKey(urlPart))
+            if (!_instance._urlPartEndpointDict.ContainsKey(urlPart))
             {
                 return;
             }
 
             // **** pass to instance ****
 
-            _instance._QueueMessage(_instance._urlPartGuidDict[urlPart], message);
+            _instance._QueueMessage(_instance._urlPartEndpointDict[urlPart].Uid, message);
         }
 
         #endregion Class Interface . . .
@@ -511,7 +511,7 @@ namespace argonaut_subscription_client_host.Managers
             // **** remove this endpoint ****
 
             _endpointClientsDict.Remove(endpointUid);
-            _urlPartGuidDict.Remove(_uidEndpointDict[endpointUid].UrlPart);
+            _urlPartEndpointDict.Remove(_uidEndpointDict[endpointUid].UrlPart);
             _uidEndpointDict.Remove(endpointUid);
         }
 
@@ -665,10 +665,12 @@ namespace argonaut_subscription_client_host.Managers
                                     Guid? clientUid = null
                                     )
         {
+            EndpointInformation endpoint = EndpointInformation.Create(endpointUid, endpointType, urlPart);
+
             // **** add or update this ****
 
-            _uidEndpointDict[endpointUid] = EndpointInformation.Create(endpointUid, endpointType, urlPart);
-            _urlPartGuidDict[urlPart] = endpointUid;
+            _uidEndpointDict[endpointUid] = endpoint;
+            _urlPartEndpointDict[urlPart] = endpoint;
 
             // **** check to see if we have a client ****
 

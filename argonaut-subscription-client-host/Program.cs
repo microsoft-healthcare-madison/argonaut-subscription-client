@@ -1,4 +1,5 @@
 ﻿using argonaut_subscription_client_host.Managers;
+using argonaut_subscription_client_host.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
@@ -49,6 +50,27 @@ namespace argonaut_subscription_client_host
 
             ClientManager.Init();
             EndpointManager.Init();
+            TriggerManager.Init();
+
+            //// **** TESTING ****
+
+            //{
+            //    TriggerRequest request = new TriggerRequest()
+            //    {
+            //        FhirServerUrl = "http://localhost:56340/baseR4/",
+            //        ResourceName = "Encounter",
+            //        FilterName = "Patient",
+            //        FilterMatchType = "=",
+            //        FilterValue = "Patient/J123",
+            //        Repetitions = 1,
+            //        DelayMilliseconds = 0,
+            //        IgnoreErrors = true
+            //    };
+
+            //    TriggerManager.TryAddRequest(request, out TriggerInformation info);
+
+            //    Console.WriteLine($"Have request: {info.Uid}");
+            //}
 
             // **** create our web host ****
 
