@@ -61,7 +61,7 @@ namespace argonaut_subscription_client_host
             //        ResourceName = "Encounter",
             //        FilterName = "Patient",
             //        FilterMatchType = "=",
-            //        FilterValue = "Patient/J123",
+            //        FilterValue = "Patient/J123,Patient/K123",
             //        Repetitions = 1,
             //        DelayMilliseconds = 0,
             //        IgnoreErrors = true
