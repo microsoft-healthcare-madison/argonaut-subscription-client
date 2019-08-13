@@ -246,7 +246,7 @@ namespace argonaut_subscription_client_host.Managers
         {
             // **** right now the only valid match is a Patient ****
 
-            if (triggerInfo.Request.FilterName != "Patient")
+            if (triggerInfo.Request.FilterName != "patient")
             {
                 // **** output to screen ****
 
