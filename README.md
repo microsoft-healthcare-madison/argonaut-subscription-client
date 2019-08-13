@@ -1,5 +1,7 @@
 # argonaut-subscription-client-host
 
+[![Build Status](https://dev.azure.com/fhir-build/argonaut/_apis/build/status/microsoft-healthcare-madison.argonaut-subscription-client?branchName=master)](https://dev.azure.com/fhir-build/argonaut/_build/latest?definitionId=8&branchName=master)
+
 A .Net Core application to work with the proposed Argonaut Subscription changes.
 
 This system creates channel endpoints, generates subscription requests, listens 
