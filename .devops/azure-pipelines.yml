@@ -1,0 +1,25 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: argonaut-variables
+  - name: docker_tag
+    value: argonautcontainerregistry.azurecr.io/subscriptions/client:$(Build.BuildNumber)
+
+steps:
+- bash: docker build -t $(docker_tag) -f .devops/Dockerfile .
+  name: build
+
+- bash: |
+    az login --service-principal --username $(appId) --password $(password) --tenant $(tenant)
+    az aks get-credentials --resource-group $(aks_resource_group) --name $(aks_cluster_name)
+    az acr login --name $(acr_registry_name)
+    docker push $(docker_tag)
+    kubectl -n $(k8s_namespace) patch deployment client  \
+      --type json \
+      --patch "[{ \"op\" : \"replace\" , \"path\" : \"/spec/template/spec/containers/0/image\" , \"value\" : \"$(docker_tag)\"}]"
+  name: deploy
+  condition: "and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))"
