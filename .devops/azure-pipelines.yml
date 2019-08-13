@@ -22,4 +22,4 @@ steps:
       --type json \
       --patch "[{ \"op\" : \"replace\" , \"path\" : \"/spec/template/spec/containers/0/image\" , \"value\" : \"$(docker_tag)\"}]"
   name: deploy
-  #condition: "and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))"
+  condition: "and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))"
