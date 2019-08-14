@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.WebSockets;
@@ -19,10 +20,13 @@ namespace argonaut_subscription_client_host.Handlers
         #region Class Constants . . .
 
         /// <summary>Size of the message buffer.</summary>
-        private const int _messageBufferSize = 1024 * 8;    // 8 KB
+        private const int _messageBufferSize = 1024 * 8;            // 8 KB
 
         /// <summary>The send sleep delay in milliseconds.</summary>
         private const int _sendSleepDelayMs = 100;
+
+        /// <summary>The keepalive timeout in ticks.</summary>
+        private const long _keepaliveTimeoutTicks = 29 * TimeSpan.TicksPerSecond;         // 29 seconds
 
         #endregion Class Constants . . .
 
@@ -41,8 +45,17 @@ namespace argonaut_subscription_client_host.Handlers
         /// <summary>A token that allows processing to be cancelled.</summary>
         private readonly CancellationToken _applicationStopping;
 
+        /// <summary>Dictionary of client message timeouts.</summary>
+        private ConcurrentDictionary<Guid, long> _clientMessageTimeoutDict;
+
         /// <summary>URL to match.</summary>
         private readonly string _matchUrl;
+
+        /// <summary>The keepalive thread.</summary>
+        private Thread _keepaliveThread;
+
+        /// <summary>The keepalive lock object.</summary>
+        private object _keepaliveLockObject;
         #endregion Instance Variables . . .
 
         #region Constructors . . .
@@ -69,6 +82,10 @@ namespace argonaut_subscription_client_host.Handlers
             _nextDelegate = nextDelegate;
             _applicationStopping = appLifetime.ApplicationStopping;
             _matchUrl = matchUrl;
+
+            _clientMessageTimeoutDict = new ConcurrentDictionary<Guid, long>();
+            _keepaliveThread = null;
+            _keepaliveLockObject = new object();
         }
 
         #endregion Constructors . . .
@@ -166,7 +183,88 @@ namespace argonaut_subscription_client_host.Handlers
             }
         }
 
+        private void StartKeepaliveThread()
+        {
+            // **** make sure that we are not starting two at the same time ****
 
+            lock (_keepaliveLockObject)
+            {
+                // **** check to see if our thread is running ****
+
+                if ((_keepaliveThread != null) && (_keepaliveThread.ThreadState == System.Threading.ThreadState.Running))
+                {
+                    // **** done ****
+
+                    return;
+                }
+
+                // **** kill any old threads ****
+
+                if (_keepaliveThread != null)
+                {
+                    try
+                    {
+                        _keepaliveThread.Abort();
+                        _keepaliveThread = null;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+
+                // **** create our thread ****
+
+                _keepaliveThread = new Thread(new ThreadStart(KeepaliveThreadFunc));
+
+                // **** set to background to make sure the thread doesn't keep our process alive ****
+
+                _keepaliveThread.IsBackground = true;
+
+                // **** start our thread ****
+
+                _keepaliveThread.Start();
+            }
+        }
+
+        private void KeepaliveThreadFunc()
+        {
+            try
+            {
+                // **** loop while there are clients ****
+
+                while (_clientMessageTimeoutDict.Count > 0)
+                {
+                    long currentTicks = DateTime.Now.Ticks;
+                    string keepaliveTime = string.Format("{0:s}", DateTime.Now);
+
+                    // **** traverse the dictionary looking for clients we need to send messages to ****
+
+                    foreach (KeyValuePair<Guid, long> kvp in _clientMessageTimeoutDict)
+                    {
+                        // **** check timeout ****
+
+                        if (currentTicks > kvp.Value)
+                        {
+                            // **** enqueue a message for this client ****
+
+                            if (ClientManager.TryGetClient(kvp.Key, out ClientInformation client))
+                            {
+                                client.MessageQ.Enqueue($"keepalive: {keepaliveTime}");
+                            }
+                        }
+                    }
+
+                    // **** wait for a second ****
+
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ClientWebSocketHandler.KeepaliveThreadFunc <<< exception: {ex.Message}");
+            }
+        }
         ///-------------------------------------------------------------------------------------------------
         /// <summary>Accept and process a web socket connection.</summary>
         ///
@@ -189,10 +287,13 @@ namespace argonaut_subscription_client_host.Handlers
 
                 using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
                 {
-                    //// TODO: Remove after testing
-                    //// **** queue messages for this client ****
+                    // **** add our client to the dictionary to send keepalives ****
 
-                    //_ = Task.Run((Action)(() => TestQueueingMessages(clientGuid)));
+                    _clientMessageTimeoutDict.TryAdd(clientGuid, DateTime.Now.Ticks + _keepaliveTimeoutTicks);
+
+                    // **** make sure our keepalive thread is running ****
+
+                    StartKeepaliveThread();
 
                     // **** create a cancellation token source so we can cancel our read/write tasks ****
 
@@ -238,7 +339,6 @@ namespace argonaut_subscription_client_host.Handlers
                             processCancelSource.Cancel();
                         }
                     });
-                    
 
                     // **** start tasks and wait for them to complete ****
 
@@ -264,7 +364,7 @@ namespace argonaut_subscription_client_host.Handlers
         }
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>Writelient messages.</summary>
+        /// <summary>Write client messages.</summary>
         ///
         /// <remarks>Gino Canessa, 7/18/2019.</remarks>
         ///
@@ -325,6 +425,10 @@ namespace argonaut_subscription_client_host.Handlers
                         true,
                         cancelToken
                         );
+
+                    // **** update our keepalive timeout ****
+
+                    _clientMessageTimeoutDict[clientGuid] = DateTime.Now.Ticks + _keepaliveTimeoutTicks;
                 }
                 // **** keep looping ****
 
