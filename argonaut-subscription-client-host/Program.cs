@@ -43,8 +43,8 @@ namespace argonaut_subscription_client_host
             // **** update configuration to make sure listen url is properly formatted ****
 
             Regex regex = new Regex(_regexBaseUrlMatch);
-            Match match = regex.Match(Configuration["Client_Listen_Url"]);
-            Configuration["Client_Listen_Url"] = match.ToString();
+            Match match = regex.Match(Configuration["Client_Internal_Url"]);
+            Configuration["Client_Internal_Url"] = match.ToString();
 
             // **** initialize managers ****
 
@@ -89,7 +89,7 @@ namespace argonaut_subscription_client_host
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseUrls(Configuration["Client_Listen_Url"])
+                .UseUrls(Configuration["Client_Internal_Url"])
                 .UseKestrel()
                 .UseStartup<UiHostStartup>()
                 ;
