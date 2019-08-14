@@ -38,9 +38,6 @@ namespace argonaut_subscription_client_host.Managers
         /// <summary>The available resources.</summary>
         private HashSet<string> _availableResources;
 
-        /// <summary>List of removals.</summary>
-        private SortedList<DateTime, Guid> _removalList;
-
         /// <summary>The validated fhir servers.</summary>
         private Dictionary<string, FhirClient> _urlFhirServerDict;
 
@@ -68,7 +65,6 @@ namespace argonaut_subscription_client_host.Managers
             // **** crate our tracking dictionaries ****
 
             _uidTriggerDict = new Dictionary<Guid, TriggerInformation>();
-            _removalList = new SortedList<DateTime, Guid>();
             _urlFhirServerDict = new Dictionary<string, FhirClient>();
         }
 
@@ -175,21 +171,37 @@ namespace argonaut_subscription_client_host.Managers
 
             _uidTriggerDict.Add(info.Uid, info);
 
-            // **** insert into our removal list at the desired time ****
-
-            _removalList.Add(info.AvailableUntil, info.Uid);
-
             // **** start by processing a request (will add to queue if additional processing is required) ****
 
-            ProcessTriggerRequest(ref info);
+            Guid uid = info.Uid;
+            _ = System.Threading.Tasks.Task.Run((Action)(() => ProcessTriggerRequest(uid)));
 
             // **** success ****
 
             return true;
         }
 
-        private void ProcessTriggerRequest(ref TriggerInformation triggerInfo)
+        private void RemoveTrigger(Guid uid)
         {
+            if (_uidTriggerDict.ContainsKey(uid))
+            {
+                _uidTriggerDict.Remove(uid);
+            }
+        }
+
+        private void ProcessTriggerRequest(Guid uid)
+        {
+            // **** sanity checks ****
+
+            if ((uid == null) || (uid == Guid.Empty) || (!_uidTriggerDict.ContainsKey(uid)))
+            {
+                return;
+            }
+
+            // **** grab this trigger information ***
+
+            TriggerInformation triggerInfo = _uidTriggerDict[uid];
+
             // **** get a FHIR Client for this server ****
 
             if (!TryGetFhirClient(triggerInfo.Request.FhirServerUrl, out FhirClient client))
@@ -197,6 +209,10 @@ namespace argonaut_subscription_client_host.Managers
                 // **** fail this request ****
 
                 triggerInfo.Status = TriggerInformation.TriggerStatuses.Error;
+
+                // **** just remove for now ****
+
+                RemoveTrigger(uid);
 
                 // **** nothing else to do ****
 
@@ -238,8 +254,11 @@ namespace argonaut_subscription_client_host.Managers
                 return;
             }
 
-            // **** check if we need to insert into the processing queue ****
+            // **** check if we need to repeat this request ****
 
+            // **** just remove for now ****
+
+            RemoveTrigger(uid);
         }
 
         private bool SendEncounter(ref TriggerInformation triggerInfo, FhirClient client)
