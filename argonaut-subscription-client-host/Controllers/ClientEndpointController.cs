@@ -92,6 +92,53 @@ namespace argonaut_subscription_client_host.Controllers
         }
 
         ///-------------------------------------------------------------------------------------------------
+        /// <summary>(An Action that handles HTTP POST requests) posts a create REST endpoint for 
+        /// a specified client.</summary>
+        ///
+        /// <remarks>Gino Canessa, 8/15/2019.</remarks>
+        ///
+        /// <param name="clientUid">The client UID.</param>
+        ///
+        /// <returns>An IActionResult.</returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        [HttpPost]
+        [Route("/api/Clients/{clientUid:guid}/Endpoints/REST/")]
+        public virtual IActionResult PostCreateRestEndpointForClient([FromRoute] Guid clientUid)
+        {
+            // **** check for no information ****
+
+            if ((clientUid == null) || (clientUid == Guid.Empty))
+            {
+                // **** fail ****
+
+                return StatusCode(400);
+            }
+
+            // **** create a new endpoint object ****
+
+            EndpointInformation endpoint = new EndpointInformation()
+            {
+                Uid = Guid.NewGuid(),
+                ChannelType = EndpointInformation.EndpointChannelType.RestHook,
+                UrlPart = null
+            };
+
+            // **** create this endpoint and register to this client ****
+
+            EndpointManager.AddOrUpdate(
+                endpoint.Uid,
+                endpoint.ChannelType,
+                endpoint.UrlPart,
+                clientUid
+                );
+
+            // **** return our object ****
+
+            return StatusCode(201, endpoint);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
         /// <summary>(An Action that handles HTTP POST requests) posts a create endpoint for client.</summary>
         ///
         /// <remarks>Gino Canessa, 7/29/2019.</remarks>

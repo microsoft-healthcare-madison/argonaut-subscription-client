@@ -511,7 +511,12 @@ namespace argonaut_subscription_client_host.Managers
             // **** remove this endpoint ****
 
             _endpointClientsDict.Remove(endpointUid);
-            _urlPartEndpointDict.Remove(_uidEndpointDict[endpointUid].UrlPart);
+            
+            if (!string.IsNullOrEmpty(_uidEndpointDict[endpointUid].UrlPart))
+            {
+                _urlPartEndpointDict.Remove(_uidEndpointDict[endpointUid].UrlPart);
+            }
+
             _uidEndpointDict.Remove(endpointUid);
         }
 
@@ -615,7 +620,7 @@ namespace argonaut_subscription_client_host.Managers
         /// <param name="clientUid">  The client UID.</param>
         /// <param name="endpointUid">The endpoint UID.</param>
         ///-------------------------------------------------------------------------------------------------
-
+        
         private void _RegisterClientForEndpoint(Guid clientUid, Guid endpointUid)
         {
             // **** check for first registration of this client ****
@@ -670,7 +675,11 @@ namespace argonaut_subscription_client_host.Managers
             // **** add or update this ****
 
             _uidEndpointDict[endpointUid] = endpoint;
-            _urlPartEndpointDict[urlPart] = endpoint;
+
+            if (!string.IsNullOrEmpty(urlPart))
+            {
+                _urlPartEndpointDict[urlPart] = endpoint;
+            }
 
             // **** check to see if we have a client ****
 
