@@ -191,7 +191,9 @@ namespace argonaut_subscription_client_host.Handlers
             {
                 // **** check to see if our thread is running ****
 
-                if ((_keepaliveThread != null) && (_keepaliveThread.ThreadState == System.Threading.ThreadState.Running))
+                if ((_keepaliveThread != null) && 
+                    (_keepaliveThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin) ||
+                     _keepaliveThread.ThreadState.HasFlag(System.Threading.ThreadState.Running)))
                 {
                     // **** done ****
 
@@ -229,6 +231,7 @@ namespace argonaut_subscription_client_host.Handlers
 
         private void KeepaliveThreadFunc()
         {
+            List<Guid> clientsToRemove = new List<Guid>();
             try
             {
                 // **** loop while there are clients ****
@@ -250,10 +253,29 @@ namespace argonaut_subscription_client_host.Handlers
 
                             if (ClientManager.TryGetClient(kvp.Key, out ClientInformation client))
                             {
-                                client.MessageQ.Enqueue($"keepalive: {keepaliveTime}");
+                                // **** enqueue a keepalive message ****
+
+                                client.MessageQ.Enqueue($"keepalive: {keepaliveTime}, client: {client.Uid}");
+                            }
+                            else
+                            {
+                                // **** client is gone, stop sending (cannot remove inside iterator) ****
+
+                                clientsToRemove.Add(kvp.Key);
                             }
                         }
                     }
+
+                    // **** remove any clients we need to remove ****
+
+                    foreach (Guid clientGuid in clientsToRemove)
+                    {
+                        _clientMessageTimeoutDict.TryRemove(clientGuid, out _);
+                    }
+
+                    // **** clear our list ****
+
+                    clientsToRemove.Clear();
 
                     // **** wait for a second ****
 
