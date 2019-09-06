@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace argonaut_subscription_client_host.Controllers
@@ -121,6 +122,7 @@ namespace argonaut_subscription_client_host.Controllers
             {
                 Uid = Guid.NewGuid(),
                 ChannelType = EndpointInformation.EndpointChannelType.RestHook,
+                Enabled = true,
                 UrlPart = null
             };
 
@@ -234,6 +236,71 @@ namespace argonaut_subscription_client_host.Controllers
 
             return StatusCode(201);
         }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>(An Action that handles HTTP POST requests) posts an endpoint operation for
+        /// client.</summary>
+        ///
+        /// <remarks>Gino Canessa, 9/6/2019.</remarks>
+        ///
+        /// <param name="clientUid">  The client UID.</param>
+        /// <param name="endpointUid">The endpoint UID.</param>
+        /// <param name="operation">  The operation.</param>
+        ///
+        /// <returns>An IActionResult.</returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        [HttpPost]
+        [Route("/api/Clients/{clientUid:guid}/Endpoints/{endpointUid:guid}/{operation}/")]
+        public virtual IActionResult PostEndpointOperationForClient(
+                                                                    [FromRoute] Guid clientUid,
+                                                                    [FromRoute] Guid endpointUid,
+                                                                    [FromRoute] string operation
+                                                                    )
+        {
+            // **** sanity checks ****
+
+            if ((clientUid == null) || (clientUid == Guid.Empty) ||
+                (endpointUid == null) || (endpointUid == Guid.Empty) ||
+                (string.IsNullOrEmpty(operation)))
+            {
+                // **** fail ****
+
+                return StatusCode(400);
+            }
+
+            // **** convert the operation to lower-case for sanity in matching ****
+
+            operation = operation.ToLower();
+
+            // **** act depending on operation ****
+
+            switch (operation)
+            {
+                case "enable":
+                    {   // scope
+                        if (EndpointManager.TryEnable(endpointUid, out EndpointInformation endpoint))
+                        {
+                            return StatusCode(200, endpoint);
+                        }
+                    }
+                    break;
+
+                case "disable":
+                    {   // scope
+                        if (EndpointManager.TryDisable(endpointUid, out EndpointInformation endpoint))
+                        {
+                            return StatusCode(200, endpoint);
+                        }
+                    }
+                    break;
+            }
+
+            // **** failure, unknown operation ****
+
+            return StatusCode(400);
+        }
+
 
         [HttpDelete]
         [Route("/api/Clients/{clientUid:guid}/Endpoints/{endpointUid:guid}/")]

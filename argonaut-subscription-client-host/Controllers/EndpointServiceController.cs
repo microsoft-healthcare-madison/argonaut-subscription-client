@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace argonaut_subscription_client_host.Controllers
@@ -162,7 +163,7 @@ namespace argonaut_subscription_client_host.Controllers
         {
             // **** check to see if this endpoint exists ****
 
-            if (!EndpointManager.Exists(endpointUid))
+            if (!EndpointManager.TryGetEndpointByUid(endpointUid, out EndpointInformation endpoint))
             {
                 // **** notify user ****
 
@@ -171,6 +172,19 @@ namespace argonaut_subscription_client_host.Controllers
                 // **** allow it, but note we are not processing it ****
 
                 return StatusCode(202);
+            }
+
+            // **** check for disabled ****
+
+            if (endpoint.Enabled == false)
+            {
+                // **** notify user ****
+
+                Console.WriteLine($"Received message for DISABLED Endpoint: {endpointUid}, refusing!");
+
+                // **** reject ****
+
+                return StatusCode(500);
             }
 
             // **** notify user ****

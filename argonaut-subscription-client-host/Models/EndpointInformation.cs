@@ -55,6 +55,14 @@ namespace argonaut_subscription_client_host.Models
 
         public string UrlPart { get; set; }
 
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>Gets or sets a value indicating whether this endpoint is enabled.</summary>
+        ///
+        /// <value>True if enabled, false if not.</value>
+        ///-------------------------------------------------------------------------------------------------
+
+        public bool Enabled { get; set; }
+
         /////-------------------------------------------------------------------------------------------------
         ///// <summary>Gets or sets the endpoint clients.</summary>
         /////
@@ -87,6 +95,7 @@ namespace argonaut_subscription_client_host.Models
                 Uid = uid,
                 ChannelType = channelType,
                 UrlPart = urlPart,
+                Enabled = true,
                 //EndpointClients = new Dictionary<Guid, Guid>()
             };
         }

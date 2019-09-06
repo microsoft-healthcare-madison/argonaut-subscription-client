@@ -375,6 +375,46 @@ namespace argonaut_subscription_client_host.Managers
             _instance._QueueMessage(_instance._urlPartEndpointDict[urlPart].Uid, message);
         }
 
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>Enables the given endpoint UID.</summary>
+        ///
+        /// <remarks>Gino Canessa, 9/6/2019.</remarks>
+        ///
+        /// <param name="endpointUid">The endpoint UID.</param>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static bool TryEnable(Guid endpointUid, out EndpointInformation endpoint)
+        {
+            if (_instance._uidEndpointDict.ContainsKey(endpointUid))
+            {
+                _instance._uidEndpointDict[endpointUid].Enabled = true;
+                endpoint = _instance._uidEndpointDict[endpointUid];
+                return true;
+            }
+            endpoint = null;
+            return false;
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>Disables the given endpoint UID.</summary>
+        ///
+        /// <remarks>Gino Canessa, 9/6/2019.</remarks>
+        ///
+        /// <param name="endpointUid">The endpoint UID.</param>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static bool TryDisable(Guid endpointUid, out EndpointInformation endpoint)
+        {
+            if (_instance._uidEndpointDict.ContainsKey(endpointUid))
+            {
+                _instance._uidEndpointDict[endpointUid].Enabled = false;
+                endpoint = _instance._uidEndpointDict[endpointUid];
+                return true;
+            }
+            endpoint = null;
+            return false;
+        }
+
         #endregion Class Interface . . .
 
         #region Instance Interface . . .
