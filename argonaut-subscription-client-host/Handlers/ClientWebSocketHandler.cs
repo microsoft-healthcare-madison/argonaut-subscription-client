@@ -239,7 +239,7 @@ namespace argonaut_subscription_client_host.Handlers
                 while (_clientMessageTimeoutDict.Count > 0)
                 {
                     long currentTicks = DateTime.Now.Ticks;
-                    string keepaliveTime = string.Format("{0:s}", DateTime.Now);
+                    string keepaliveTime = string.Format("{0:o}", DateTime.Now.ToUniversalTime());
 
                     // **** traverse the dictionary looking for clients we need to send messages to ****
 

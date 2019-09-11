@@ -158,7 +158,7 @@ namespace argonaut_subscription_client_host.Controllers
 
         [HttpPost]
         [Route("/Endpoints/{endpointUid:guid}/")]
-        [Consumes("application/fhir+json")]
+        [Consumes("application/fhir+json", new[] { "application/json" })]
         public virtual IActionResult PostEventToEndpointByUid([FromRoute] Guid endpointUid)
         {
             // **** check to see if this endpoint exists ****
@@ -221,7 +221,7 @@ namespace argonaut_subscription_client_host.Controllers
 
         [HttpPost]
         [Route("/Endpoints/{urlPart}/")]
-        [Consumes("application/fhir+json")]
+        [Consumes("application/fhir+json", new[] { "application/json" })]
         public virtual IActionResult PostEventToEndpointByUrlPart([FromRoute] string urlPart)
         {
             // **** check to see if this endpoint exists ****
