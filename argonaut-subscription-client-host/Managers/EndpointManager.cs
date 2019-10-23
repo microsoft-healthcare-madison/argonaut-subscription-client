@@ -517,6 +517,10 @@ namespace argonaut_subscription_client_host.Managers
 
             _endpointClientsDict[endpointUid].Remove(clientUid);
 
+            // **** log ****
+
+            Console.WriteLine($"Removed endpoint >>>{endpointUid}<<< from client >>>{clientUid}<<<");
+
             // **** check for deleting this endpoint ****
 
             if (_endpointClientsDict[endpointUid].Count == 0)
@@ -558,6 +562,10 @@ namespace argonaut_subscription_client_host.Managers
             }
 
             _uidEndpointDict.Remove(endpointUid);
+
+            // **** log ****
+
+            Console.WriteLine($"Removed endpoint >>>{endpointUid}<<< total: {_endpointClientsDict.Count}");
         }
 
         ///-------------------------------------------------------------------------------------------------
@@ -721,6 +729,10 @@ namespace argonaut_subscription_client_host.Managers
                 _urlPartEndpointDict[urlPart] = endpoint;
             }
 
+            // **** log ****
+
+            Console.WriteLine($"Created endpoint >>>{endpointUid}<<< total: {_endpointClientsDict.Count}");
+
             // **** check to see if we have a client ****
 
             if ((clientUid != null) &&
@@ -729,6 +741,11 @@ namespace argonaut_subscription_client_host.Managers
                 // **** register this client to this endpoint ****
 
                 _RegisterClientForEndpoint((Guid)clientUid, endpointUid);
+
+
+                // **** log ****
+
+                Console.WriteLine($"Added endpoint >>>{endpointUid}<<< to client: >>>{clientUid}<<<");
             }
         }
 

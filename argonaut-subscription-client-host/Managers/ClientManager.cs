@@ -87,6 +87,10 @@ namespace argonaut_subscription_client_host.Managers
             // **** add or update the record ****
 
             _instance._uidClientDict[clientUid] = ClientInformation.Create(clientUid, fhirServerUrl);
+
+            // **** log ****
+
+            Console.WriteLine($"Added client >>>{clientUid}<<< total: {_instance._uidClientDict.Count}");
         }
 
         ///-------------------------------------------------------------------------------------------------
@@ -115,6 +119,10 @@ namespace argonaut_subscription_client_host.Managers
             // **** remove this client ****
 
             _instance._uidClientDict.Remove(clientUid);
+
+            // **** log ****
+
+            Console.WriteLine($"Removed client >>>{clientUid}<<< total: {_instance._uidClientDict.Count}");
 
             // **** successfully removed ****
 

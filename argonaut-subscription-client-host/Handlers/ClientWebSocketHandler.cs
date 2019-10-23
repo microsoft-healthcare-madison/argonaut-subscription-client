@@ -56,6 +56,8 @@ namespace argonaut_subscription_client_host.Handlers
 
         /// <summary>The keepalive lock object.</summary>
         private object _keepaliveLockObject;
+
+        private int _websocketCount;
         #endregion Instance Variables . . .
 
         #region Constructors . . .
@@ -86,6 +88,8 @@ namespace argonaut_subscription_client_host.Handlers
             _clientMessageTimeoutDict = new ConcurrentDictionary<Guid, long>();
             _keepaliveThread = null;
             _keepaliveLockObject = new object();
+
+            _websocketCount = 0;
         }
 
         #endregion Constructors . . .
@@ -183,6 +187,12 @@ namespace argonaut_subscription_client_host.Handlers
             }
         }
 
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>Starts keepalive thread.</summary>
+        ///
+        /// <remarks>Gino Canessa, 10/23/2019.</remarks>
+        ///-------------------------------------------------------------------------------------------------
+
         private void StartKeepaliveThread()
         {
             // **** make sure that we are not starting two at the same time ****
@@ -228,6 +238,12 @@ namespace argonaut_subscription_client_host.Handlers
                 _keepaliveThread.Start();
             }
         }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>Keepalive thread function.</summary>
+        ///
+        /// <remarks>Gino Canessa, 10/23/2019.</remarks>
+        ///-------------------------------------------------------------------------------------------------
 
         private void KeepaliveThreadFunc()
         {
@@ -309,6 +325,14 @@ namespace argonaut_subscription_client_host.Handlers
 
                 using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
                 {
+                    // **** track we have a new websocket ****
+
+                    Interlocked.Increment(ref _websocketCount);
+
+                    // **** log ****
+
+                    Console.WriteLine($"Added websocket for client >>>{clientGuid}<<< current count: {_websocketCount}");
+
                     // **** add our client to the dictionary to send keepalives ****
 
                     _clientMessageTimeoutDict.TryAdd(clientGuid, DateTime.Now.Ticks + _keepaliveTimeoutTicks);
@@ -381,6 +405,20 @@ namespace argonaut_subscription_client_host.Handlers
 
                 Console.WriteLine($" <<< caught exception: {wsEx.Message}");
             }
+
+            // **** track we have a new websocket ****
+
+            Interlocked.Decrement(ref _websocketCount);
+
+            // **** log ****
+
+            Console.WriteLine($"Removed websocket for client >>>{clientGuid}<<< current count: {_websocketCount}");
+
+            // **** remove this client - disconnected ****
+
+            ClientManager.Remove(clientGuid);
+
+            // **** done ****
 
             return;
         }

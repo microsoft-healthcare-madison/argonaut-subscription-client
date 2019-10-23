@@ -50,7 +50,7 @@ namespace argonaut_subscription_client_host
 
             ClientManager.Init();
             EndpointManager.Init();
-            TriggerManager.Init();
+            //TriggerManager.Init();
 
             //// **** TESTING ****
 
