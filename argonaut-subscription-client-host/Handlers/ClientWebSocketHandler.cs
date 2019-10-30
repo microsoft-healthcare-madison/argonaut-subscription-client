@@ -26,7 +26,7 @@ namespace argonaut_subscription_client_host.Handlers
         private const int _sendSleepDelayMs = 100;
 
         /// <summary>The keepalive timeout in ticks.</summary>
-        private const long _keepaliveTimeoutTicks = 29 * TimeSpan.TicksPerSecond;         // 29 seconds
+        private const long _keepaliveTimeoutTicks = 10 * TimeSpan.TicksPerSecond;         // 10 seconds
 
         #endregion Class Constants . . .
 
