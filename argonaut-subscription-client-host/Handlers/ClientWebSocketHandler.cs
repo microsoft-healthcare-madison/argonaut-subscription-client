@@ -333,9 +333,9 @@ namespace argonaut_subscription_client_host.Handlers
 
                     Console.WriteLine($"Added websocket for client >>>{clientGuid}<<< current count: {_websocketCount}");
 
-                    // **** add our client to the dictionary to send keepalives ****
+                    // **** add our client to the dictionary to send keepalives, force one to start ****
 
-                    _clientMessageTimeoutDict.TryAdd(clientGuid, DateTime.Now.Ticks + _keepaliveTimeoutTicks);
+                    _clientMessageTimeoutDict.TryAdd(clientGuid, 0);
 
                     // **** make sure our keepalive thread is running ****
 
