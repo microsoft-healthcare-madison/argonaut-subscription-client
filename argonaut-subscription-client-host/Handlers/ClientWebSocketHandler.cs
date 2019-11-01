@@ -252,7 +252,8 @@ namespace argonaut_subscription_client_host.Handlers
             {
                 // **** loop while there are clients ****
 
-                while (_clientMessageTimeoutDict.Count > 0)
+                //while (_clientMessageTimeoutDict.Count > 0)
+                while (true)
                 {
                     long currentTicks = DateTime.Now.Ticks;
                     string keepaliveTime = string.Format("{0:o}", DateTime.Now.ToUniversalTime());
@@ -303,6 +304,7 @@ namespace argonaut_subscription_client_host.Handlers
                 Console.WriteLine($"ClientWebSocketHandler.KeepaliveThreadFunc <<< exception: {ex.Message}");
             }
         }
+
         ///-------------------------------------------------------------------------------------------------
         /// <summary>Accept and process a web socket connection.</summary>
         ///
