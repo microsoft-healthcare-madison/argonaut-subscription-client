@@ -247,13 +247,13 @@ namespace argonaut_subscription_client_host.Handlers
 
         private void KeepaliveThreadFunc()
         {
-            List<Guid> clientsToRemove = new List<Guid>();
-            try
-            {
-                // **** loop while there are clients ****
+        List<Guid> clientsToRemove = new List<Guid>();
+            // **** loop while there are clients ****
 
-                //while (_clientMessageTimeoutDict.Count > 0)
-                while (true)
+            //while (_clientMessageTimeoutDict.Count > 0)
+            while (true)
+            {
+                try
                 {
                     long currentTicks = DateTime.Now.Ticks;
                     string keepaliveTime = string.Format("{0:o}", DateTime.Now.ToUniversalTime());
@@ -293,15 +293,15 @@ namespace argonaut_subscription_client_host.Handlers
                     // **** clear our list ****
 
                     clientsToRemove.Clear();
-
-                    // **** wait for a second ****
-
-                    Thread.Sleep(1000);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ClientWebSocketHandler.KeepaliveThreadFunc <<< exception: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ClientWebSocketHandler.KeepaliveThreadFunc <<< exception: {ex.Message}");
+                }
+
+                // **** wait for a second ****
+
+                Thread.Sleep(1000);
             }
         }
 
