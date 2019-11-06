@@ -24,8 +24,8 @@ namespace argonaut_subscription_client_host.Controllers
     ///
     /// <remarks>Gino Canessa, 7/26/2019.</remarks>
     ///-------------------------------------------------------------------------------------------------
-
     [Produces("application/json")]
+
     public class EndpointServiceController : Controller
     {
         #region Class Variables . . .
