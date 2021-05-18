@@ -5,18 +5,18 @@ VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA2A2F00-E45B-41B3-9D62-D8243AF4DB72}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\CONTRIBUTING.MD = ..\..\CONTRIBUTING.MD
-		..\..\LICENSE = ..\..\LICENSE
-		..\..\README.md = ..\..\README.md
-		..\..\THIRDPARTYNOTICES.md = ..\..\THIRDPARTYNOTICES.md
+		..\CONTRIBUTING.MD = ..\CONTRIBUTING.MD
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+		..\THIRDPARTYNOTICES.md = ..\THIRDPARTYNOTICES.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "argonaut-subscription-client-host", "..\..\argonaut-subscription-client-host\argonaut-subscription-client-host.csproj", "{60DC23FE-1EA8-45D1-8E29-10DBF88A30AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "argonaut-subscription-client-host", "..\argonaut-subscription-client-host\argonaut-subscription-client-host.csproj", "{60DC23FE-1EA8-45D1-8E29-10DBF88A30AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{153155E2-5894-4773-90FA-F6AFCAE266B5}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\.devops\azure-pipelines.yml = ..\..\.devops\azure-pipelines.yml
-		..\..\.devops\Dockerfile = ..\..\.devops\Dockerfile
+		..\.devops\azure-pipelines.yml = ..\.devops\azure-pipelines.yml
+		..\.devops\Dockerfile = ..\.devops\Dockerfile
 	EndProjectSection
 EndProject
 Global
