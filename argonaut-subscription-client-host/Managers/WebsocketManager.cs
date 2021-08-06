@@ -73,22 +73,15 @@ namespace argonaut_subscription_client_host.Managers
         {
             List<Guid> clientsToRemove = new List<Guid>();
 
-            Console.WriteLine($" <<< current clients: {_instance._clientsAndTimeouts.Count}");
-
             // traverse the dictionary looking for clients we need to send messages to
             foreach (KeyValuePair<Guid, long> kvp in _instance._clientsAndTimeouts)
             {
-                Console.WriteLine($" >>> comparing current: {currentTicks} to timeout: {kvp.Value}");
-
                 // check timeout
                 if (currentTicks > kvp.Value)
                 {
-                    Console.WriteLine($" <<< time span exceeded {currentTicks}");
-
                     // enqueue a message for this client
                     if (ClientManager.TryGetClient(kvp.Key, out ClientInformation client))
                     {
-                        Console.WriteLine(" <<< inserting keepalive into queue");
                         // enqueue a keepalive message
                         client.MessageQ.Enqueue($"keepalive {timeString}");
 
