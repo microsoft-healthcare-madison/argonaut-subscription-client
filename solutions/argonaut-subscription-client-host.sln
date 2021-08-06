@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA2A2F00-E45B-41B3-9D62-D8243AF4DB72}"
 	ProjectSection(SolutionItems) = preProject
 		..\CONTRIBUTING.MD = ..\CONTRIBUTING.MD
+		..\Dockerfile = ..\Dockerfile
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 		..\THIRDPARTYNOTICES.md = ..\THIRDPARTYNOTICES.md
@@ -13,10 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "argonaut-subscription-client-host", "..\argonaut-subscription-client-host\argonaut-subscription-client-host.csproj", "{60DC23FE-1EA8-45D1-8E29-10DBF88A30AB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{153155E2-5894-4773-90FA-F6AFCAE266B5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GH Workflows", "GH Workflows", "{0CEE1305-D226-42D8-BFF8-45206C5D5E27}"
 	ProjectSection(SolutionItems) = preProject
-		..\.devops\azure-pipelines.yml = ..\.devops\azure-pipelines.yml
-		..\.devops\Dockerfile = ..\.devops\Dockerfile
+		..\.github\workflows\main.yml = ..\.github\workflows\main.yml
 	EndProjectSection
 EndProject
 Global
