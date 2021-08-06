@@ -17,7 +17,7 @@ namespace argonaut_subscription_client_host.Managers
     public class WebsocketManager
     {
         /// <summary>The keepalive timeout in ticks.</summary>
-        private const long _keepaliveTimeoutTicks = 29 * TimeSpan.TicksPerSecond;         // 29 seconds
+        private const long _keepaliveTimeoutTicks = 10 * TimeSpan.TicksPerSecond;         // 10 seconds
 
         /// <summary>The instance for singleton pattern.</summary>
         private static WebsocketManager _instance;
@@ -43,16 +43,11 @@ namespace argonaut_subscription_client_host.Managers
 
         /// <summary>Registers the client described by client.</summary>
         /// <param name="client">The client.</param>
-        public static void RegisterClient(ClientInformation client)
+        public static void RegisterClient(Guid clientGuid)
         {
-            if (client == null)
+            if (!_instance._clientsAndTimeouts.ContainsKey(clientGuid))
             {
-                return;
-            }
-
-            if (!_instance._clientsAndTimeouts.ContainsKey(client.Uid))
-            {
-                _instance._clientsAndTimeouts.TryAdd((Guid)client.Uid, DateTime.Now.Ticks + _keepaliveTimeoutTicks);
+                _instance._clientsAndTimeouts.TryAdd(clientGuid, DateTime.Now.Ticks + _keepaliveTimeoutTicks);
             }
         }
 
@@ -78,17 +73,27 @@ namespace argonaut_subscription_client_host.Managers
         {
             List<Guid> clientsToRemove = new List<Guid>();
 
+            Console.WriteLine($" <<< current clients: {_instance._clientsAndTimeouts.Count}");
+
             // traverse the dictionary looking for clients we need to send messages to
             foreach (KeyValuePair<Guid, long> kvp in _instance._clientsAndTimeouts)
             {
+                Console.WriteLine($" >>> comparing current: {currentTicks} to timeout: {kvp.Value}");
+
                 // check timeout
                 if (currentTicks > kvp.Value)
                 {
+                    Console.WriteLine($" <<< time span exceeded {currentTicks}");
+
                     // enqueue a message for this client
                     if (ClientManager.TryGetClient(kvp.Key, out ClientInformation client))
                     {
+                        Console.WriteLine(" <<< inserting keepalive into queue");
                         // enqueue a keepalive message
                         client.MessageQ.Enqueue($"keepalive {timeString}");
+
+                        // update our keepalive timeout
+                        _instance._clientsAndTimeouts[kvp.Key] = DateTime.Now.Ticks + _keepaliveTimeoutTicks;
                     }
                     else
                     {

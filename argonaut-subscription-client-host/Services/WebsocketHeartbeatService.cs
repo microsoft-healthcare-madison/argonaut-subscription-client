@@ -37,6 +37,8 @@ namespace argonaut_subscription_client_host.Services
             long currentTicks = DateTime.Now.Ticks;
             string heartbeatTime = string.Format(CultureInfo.InvariantCulture, "{0:o}", DateTime.Now.ToUniversalTime());
 
+            Console.WriteLine($" << Checking in on heartbeats... {currentTicks}");
+
             WebsocketManager.ProcessKeepalives(currentTicks, heartbeatTime);
         }
 

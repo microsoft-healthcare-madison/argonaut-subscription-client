@@ -44,9 +44,6 @@ namespace argonaut_subscription_client_host.Handlers
         /// <summary>A token that allows processing to be cancelled.</summary>
         private readonly CancellationToken _applicationStopping;
 
-        /// <summary>Dictionary of client message timeouts.</summary>
-        private ConcurrentDictionary<Guid, long> _clientMessageTimeoutDict;
-
         /// <summary>URL to match.</summary>
         private readonly string _matchUrl;
 
@@ -70,8 +67,6 @@ namespace argonaut_subscription_client_host.Handlers
             _nextDelegate = nextDelegate;
             _applicationStopping = appLifetime.ApplicationStopping;
             _matchUrl = matchUrl;
-
-            _clientMessageTimeoutDict = new ConcurrentDictionary<Guid, long>();
 
             _websocketCount = 0;
         }
@@ -153,8 +148,8 @@ namespace argonaut_subscription_client_host.Handlers
 
                     Console.WriteLine($"Added websocket for client >>>{clientGuid}<<< current count: {_websocketCount}");
 
-                    // add our client to the dictionary to send keepalives, force one to start
-                    _clientMessageTimeoutDict.TryAdd(clientGuid, 0);
+                    // register this client
+                    WebsocketManager.RegisterClient(clientGuid);
 
                     // create a cancellation token source so we can cancel our read/write tasks
                     using (CancellationTokenSource processCancelSource = new CancellationTokenSource())
@@ -264,9 +259,6 @@ namespace argonaut_subscription_client_host.Handlers
                         WebSocketMessageType.Text,
                         true,
                         cancelToken);
-
-                    // update our keepalive timeout
-                    _clientMessageTimeoutDict[clientGuid] = DateTime.Now.Ticks + _keepaliveTimeoutTicks;
                 }
                 catch (Exception ex)
                 {
