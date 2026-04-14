@@ -1,3 +1,7 @@
+# Archival Note
+
+This repository is no longer in use. For Subscriptions RI, please see the [fhir-candle](https://github.com/fhir/fhir-candle) repository.
+
 # argonaut-subscription-client-host
 
 [![Build Status](https://dev.azure.com/fhir-build/argonaut/_apis/build/status/microsoft-healthcare-madison.argonaut-subscription-client?branchName=master)](https://dev.azure.com/fhir-build/argonaut/_build/latest?definitionId=8&branchName=master)
